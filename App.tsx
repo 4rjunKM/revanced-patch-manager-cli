@@ -34,7 +34,10 @@ import {
   Terminal as PS,
   Play,
   Monitor,
-  Code2
+  Code2,
+  Share2,
+  User,
+  Globe
 } from 'lucide-react';
 
 const MemoizedAppIcon = memo(({ app, size = "md" }: { app: TargetApp, size?: "sm" | "md" | "lg" }) => {
@@ -139,7 +142,11 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [copyStatus, setCopyStatus] = useState<'none' | 'setup' | 'launch'>('none');
 
-  const setupCommand = "iwr -useb https://raw.githubusercontent.com/YOUR_USER/revanced-win-utility/main/setup.ps1 | iex";
+  // Updated Default Credentials for 4rjunKM
+  const [ghUser, setGhUser] = useState<string>("4rjunKM");
+  const [ghRepo, setGhRepo] = useState<string>("revanced-patch-manager-cli");
+
+  const setupCommand = `iwr -useb https://raw.githubusercontent.com/${ghUser}/${ghRepo}/main/setup.ps1 | iex`;
   
   const getExecutionCommand = () => {
     const outName = filename === "none" ? "Output.apk" : `patched_${filename}`;
@@ -239,7 +246,7 @@ const App: React.FC = () => {
         <div className="ps-header h-12 flex items-center justify-between px-6 shrink-0 z-10 shadow-xl">
           <div className="flex items-center gap-4">
             <TerminalIcon size={16} className="text-ps-highlight" />
-            <h1 className="text-sm font-bold tracking-wider uppercase">ReVanced Win Utility v4.9 | Open Source</h1>
+            <h1 className="text-sm font-bold tracking-wider uppercase">ReVanced Win Utility v4.9 | Agent: {ghUser}</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className={`px-3 py-1 rounded text-[10px] font-bold border flex items-center gap-2 transition-all ${isCoreReady ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' : 'bg-red-500/10 border-red-500/50 text-red-400'}`}>
@@ -254,12 +261,11 @@ const App: React.FC = () => {
             <div className="w-[520px] border-r border-ps-border bg-[#001026] flex flex-col overflow-hidden">
               <div className="p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
                 
-                {/* PowerShell Command Center */}
                 <div className="space-y-4">
-                  <div className="p-4 bg-ps-highlight/10 border border-ps-highlight/30 rounded shadow-[0_0_20px_rgba(0,175,240,0.05)]">
+                  <div className="p-4 bg-ps-highlight/10 border border-ps-highlight/30 rounded">
                     <div className="flex items-center justify-between mb-3">
                       <label className="text-[11px] font-bold text-ps-highlight uppercase tracking-[0.2em] flex items-center gap-2">
-                        <PS size={14} /> 1. PowerShell Installation
+                        <PS size={14} /> Global Setup (Paste in PS)
                       </label>
                       {copyStatus === 'setup' && <span className="text-[9px] font-bold text-emerald-400 animate-pulse">COPIED</span>}
                     </div>
@@ -271,25 +277,6 @@ const App: React.FC = () => {
                       <Copy size={12} className="opacity-20 group-hover:opacity-100" />
                     </div>
                   </div>
-
-                  {progress === 100 && (
-                    <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded animate-in slide-in-from-top duration-300">
-                      <div className="flex items-center justify-between mb-3">
-                        <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                          <Play size={14} /> 4. Launch & Execute
-                        </label>
-                        {copyStatus === 'launch' && <span className="text-[9px] font-bold text-emerald-400">COPIED</span>}
-                      </div>
-                      <div 
-                        onClick={() => copyToClipboard(getExecutionCommand(), 'launch')}
-                        className="cursor-pointer group relative bg-black/60 border border-emerald-500/20 p-3 rounded font-mono text-[9px] text-emerald-400/60 flex items-center justify-between hover:border-emerald-500/40"
-                      >
-                        <span className="truncate pr-4">{getExecutionCommand()}</span>
-                        <Copy size={12} className="opacity-20 group-hover:opacity-100" />
-                      </div>
-                      <p className="text-[8px] opacity-40 uppercase tracking-widest mt-2">Paste this to install the patched APK to your device</p>
-                    </div>
-                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -348,10 +335,107 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Sources and other views remain as previously specified */}
+        {activeView === AppView.DEPLOYMENT && (
+          <div className="flex-1 flex flex-col overflow-hidden bg-[#000b1a] p-12 custom-scrollbar overflow-y-auto">
+            <div className="max-w-4xl mx-auto w-full space-y-10">
+              <div className="space-y-2">
+                <h2 className="text-4xl font-black text-ps-highlight flex items-center gap-4">
+                  <Globe size={40} /> Distribution Center
+                </h2>
+                <p className="text-sm opacity-40">Manage how users access your PowerShell utility worldwide.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-8">
+                <div className="ps-card p-8 bg-ps-surface space-y-6">
+                  <div className="flex items-center gap-3 text-ps-highlight">
+                    <User size={20} />
+                    <h3 className="font-bold text-sm uppercase tracking-widest">1. Your Endpoint</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold opacity-30 uppercase">GitHub Username</label>
+                      <input 
+                        type="text" 
+                        value={ghUser}
+                        onChange={(e) => setGhUser(e.target.value)}
+                        className="w-full ps-input border-white/5 focus:border-ps-highlight outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold opacity-30 uppercase">Repository Name</label>
+                      <input 
+                        type="text" 
+                        value={ghRepo}
+                        onChange={(e) => setGhRepo(e.target.value)}
+                        className="w-full ps-input border-white/5 focus:border-ps-highlight outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="ps-card p-8 bg-ps-surface space-y-6 border-ps-highlight/30 shadow-[0_0_30px_rgba(0,175,240,0.1)]">
+                  <div className="flex items-center gap-3 text-emerald-400">
+                    <PS size={20} />
+                    <h3 className="font-bold text-sm uppercase tracking-widest">2. Your Public Command</h3>
+                  </div>
+
+                  <p className="text-xs opacity-60 leading-relaxed">
+                    Share this command. When a user runs it, PowerShell will fetch your <span className="text-ps-highlight font-bold">setup.ps1</span> directly from GitHub:
+                  </p>
+
+                  <div 
+                    onClick={() => copyToClipboard(setupCommand, 'setup')}
+                    className="cursor-pointer relative p-4 bg-black/80 rounded border border-ps-highlight/20 font-mono text-[11px] text-ps-highlight flex flex-col gap-2 group hover:border-ps-highlight transition-all"
+                  >
+                    <div className="flex justify-between items-center opacity-40 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[9px] font-bold">RAW COMMAND</span>
+                      <Copy size={12} />
+                    </div>
+                    <span className="break-all select-all">{setupCommand}</span>
+                    {copyStatus === 'setup' && (
+                      <div className="absolute inset-0 bg-ps-highlight/20 backdrop-blur-sm flex items-center justify-center font-bold text-white text-lg animate-in fade-in duration-150">
+                        COPIED
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-emerald-500 font-bold uppercase text-center tracking-widest animate-pulse">Ready for Global Distribution</p>
+                </div>
+              </div>
+
+              <div className="ps-card p-10 bg-ps-highlight/5 border border-dashed border-ps-highlight/30 rounded-xl space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-ps-highlight rounded-full flex items-center justify-center text-black">
+                    <Play size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold italic">Why use the Raw URL?</h3>
+                    <p className="text-sm opacity-40">It allows instant updates. When you push a new `setup.ps1`, all users get the update immediately.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6">
+                  {[
+                    { step: "ACCESS", title: "iwr | iex", desc: "This downloads the script into memory and executes it immediately without saving a file." },
+                    { step: "SYNC", title: "GitHub Raw", desc: "Always pulls from your 'main' branch. Ensure your repo is set to Public." },
+                    { step: "LAUNCH", title: "Global Alias", desc: "The script adds 'revanced' as a command to the user's computer for future use." }
+                  ].map(s => (
+                    <div key={s.step} className="space-y-2 border-l border-ps-highlight/10 pl-4">
+                      <div className="text-[10px] font-black text-ps-highlight opacity-50 tracking-widest">{s.step}</div>
+                      <h4 className="font-bold text-ps-highlight uppercase text-xs">{s.title}</h4>
+                      <p className="text-[11px] opacity-60 leading-relaxed">{s.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sources view */}
         {activeView === AppView.SOURCES && (
            <div className="flex-1 flex flex-col overflow-hidden bg-ps-bg p-10">
-           <div className="max-w-5xl mx-auto w-full space-y-8">
+           <div className="max-w-5xl mx-auto w-full space-y-8 overflow-y-auto custom-scrollbar">
              <div className="flex items-center justify-between">
                <div>
                  <h2 className="text-3xl font-bold text-ps-highlight flex items-center gap-3">

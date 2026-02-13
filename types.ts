@@ -6,7 +6,8 @@ export enum AppView {
   PATCHES = 'Patches',
   SETTINGS = 'Settings',
   LOGS = 'Logs',
-  DOWNLOADS = 'Downloads'
+  DOWNLOADS = 'Downloads',
+  DEPLOYMENT = 'Deployment'
 }
 
 export type ThemeMode = 'light' | 'dark' | 'system';

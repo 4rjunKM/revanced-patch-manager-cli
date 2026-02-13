@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { AppView } from '../types';
-import { Terminal, AppWindow, Zap, ScrollText, Shield, Github } from 'lucide-react';
+import { Terminal, AppWindow, Zap, ScrollText, Shield, Github, Share2 } from 'lucide-react';
 
 interface SidebarProps {
   activeView: AppView;
@@ -11,8 +11,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
   const navItems = [
     { view: AppView.DASHBOARD, icon: Zap, label: "Patch Utility" },
-    { view: AppView.APPLICATIONS, icon: AppWindow, label: "Registry" },
     { view: AppView.SOURCES, icon: Github, label: "Git Sources" },
+    { view: AppView.DEPLOYMENT, icon: Share2, label: "Distribution" },
     { view: AppView.LOGS, icon: ScrollText, label: "Task History" },
   ];
 
