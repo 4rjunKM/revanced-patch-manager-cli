@@ -1,0 +1,5 @@
+{
+  "name": "ReVanced Patch Manager CLI",
+  "description": "A modern, sleek interface for the ReVanced CLI, providing a robust environment for patching Android applications with ease.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows ReVanced Utility | PowerShell Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ps-blue: #012456;
+            --ps-light-blue: #173d75;
+            --ps-highlight: #00aff0;
+            --ps-bg: #000b1a;
+            --ps-surface: #0a192f;
+            --ps-border: #1e3a5f;
+            --ps-text: #e6edf3;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--ps-bg);
+            color: var(--ps-text);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #root {
+            height: 100%;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ps-card {
+            background: var(--ps-surface);
+            border: 1px solid var(--ps-border);
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .ps-header {
+            background: var(--ps-blue);
+            border-bottom: 2px solid var(--ps-highlight);
+        }
+
+        .ps-btn {
+            background: var(--ps-light-blue);
+            border: 1px solid var(--ps-highlight);
+            color: white;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .ps-btn:hover {
+            background: var(--ps-highlight);
+            color: black;
+        }
+
+        .ps-btn:active {
+            transform: translateY(1px);
+        }
+
+        .ps-btn-primary {
+            background: var(--ps-highlight);
+            color: black;
+        }
+
+        .ps-btn-primary:hover {
+            background: #33c0ff;
+        }
+
+        .ps-input {
+            background: #0d1117;
+            border: 1px solid var(--ps-border);
+            color: #58a6ff;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--ps-bg);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--ps-border);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--ps-highlight);
+        }
+
+        .ps-sidebar-item {
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .ps-sidebar-item.active {
+            background: rgba(0, 175, 240, 0.1);
+            border-left-color: var(--ps-highlight);
+            color: var(--ps-highlight);
+        }
+
+        .terminal-glow {
+            box-shadow: inset 0 0 10px rgba(0, 175, 240, 0.1);
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
