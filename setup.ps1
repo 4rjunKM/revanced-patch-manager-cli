@@ -3,91 +3,104 @@
 # Created by 4rjunKM
 # Repository: https://github.com/4rjunKM/revanced-patch-manager-cli
 
-# Force TLS 1.2 for secure GitHub connections (Fixes "Network Failure" on older systems)
+# 1. Network & Protocol Hardening
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 $ProgressPreference = 'SilentlyContinue'
 $InstallDir = "$HOME\ReVanced-Utility"
 $GhUser = "4rjunKM"
 $GhRepo = "revanced-patch-manager-cli"
-$DashboardUrl = "https://4rjunKM.github.io/revanced-patch-manager-cli/" # Update this to your actual deployment URL
+$DashboardUrl = "https://4rjunKM.github.io/revanced-patch-manager-cli/"
 
 Clear-Host
 Write-Host "=============================================" -ForegroundColor Cyan
 Write-Host "   WIN.REVANCED UTILITY INSTALLER            " -ForegroundColor White -BackgroundColor Blue
-Write-Host "   Version 4.9 | Deployment Agent            " -ForegroundColor Cyan
+Write-Host "   Version 5.0 | High-Reliability Mode       " -ForegroundColor Cyan
 Write-Host "=============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. Environment Check
-Write-Host "[*] Validating Environment..." -ForegroundColor Yellow
+# 2. Pre-Flight Checks
+Write-Host "[*] Checking Environment..." -ForegroundColor Yellow
 
-# Java Check
 if (!(Get-Command java -ErrorAction SilentlyContinue)) {
-    Write-Host "[!] Error: Java 17+ is required but not found." -ForegroundColor Red
-    Write-Host "    Redirecting to OpenJDK download page..."
+    Write-Host "[!] JAVA MISSING: Redirecting to Zulu JDK 17..." -ForegroundColor Red
     Start-Process "https://www.azul.com/downloads/?package=jdk#zulu"
+    Write-Host "[!] Please install Java and restart this script." -ForegroundColor Yellow
     exit
 }
 
-# 2. Directory Setup
 if (!(Test-Path $InstallDir)) {
     New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-    Write-Host "[+] Created workspace at $InstallDir" -ForegroundColor Green
-}
-Set-Location $InstallDir
-
-# 3. Fetching Core Binaries
-Write-Host "[*] Fetching latest ReVanced binaries from GitHub..." -ForegroundColor Yellow
-
-$CLI_URL = "https://github.com/revanced/revanced-cli/releases/latest/download/revanced-cli.jar"
-$PATCHES_URL = "https://github.com/revanced/revanced-patches/releases/latest/download/patches.rvp"
-
-try {
-    # Using -UseBasicParsing to avoid IE engine dependencies
-    Invoke-WebRequest -Uri $CLI_URL -OutFile "revanced-cli.jar" -UseBasicParsing
-    Invoke-WebRequest -Uri $PATCHES_URL -OutFile "patches.rvp" -UseBasicParsing
-    Write-Host "[+] Binary Sync Successful." -ForegroundColor Green
-} catch {
-    Write-Host "[!] Network Error: Failed to reach GitHub. Please check your internet connection." -ForegroundColor Red
-    Write-Host "    Technical Note: Ensure TLS 1.2 is enabled on your system." -ForegroundColor Gray
+    Write-Host "[+] Created workspace: $InstallDir" -ForegroundColor Green
 }
 
-# 4. Create Global Alias (Persistence)
-$ProfilePath = $PROFILE.CurrentUserAllHosts
-if (!(Test-Path $ProfilePath)) {
-    New-Item -ItemType File -Path $ProfilePath -Force | Out-Null
+# 3. Robust Download Engine
+Write-Host "[*] Synchronizing ReVanced Binaries..." -ForegroundColor Yellow
+
+$Files = @{
+    "revanced-cli.jar" = "https://github.com/revanced/revanced-cli/releases/latest/download/revanced-cli.jar"
+    "patches.rvp"      = "https://github.com/revanced/revanced-patches/releases/latest/download/patches.rvp"
 }
 
+foreach ($File in $Files.Keys) {
+    $Target = Join-Path $InstallDir $File
+    try {
+        Write-Host "    -> Downloading $File..." -NoNewline
+        Invoke-WebRequest -Uri $Files[$File] -OutFile $Target -UserAgent $UA -UseBasicParsing -TimeoutSec 30
+        Write-Host " [DONE]" -ForegroundColor Green
+    } catch {
+        Write-Host " [FAILED]" -ForegroundColor Red
+        Write-Host "    ERROR: $($_.Exception.Message)" -ForegroundColor Gray
+        Write-Host "    TIP: Try disabling your VPN or Firewall temporarily." -ForegroundColor Yellow
+    }
+}
+
+# 4. Alias Logic (Current Session + Persistence)
 $AliasCode = @"
 function revanced {
     param([switch]`$ui)
     if (`$ui) {
+        Write-Host "[*] Launching Dashboard..." -ForegroundColor Cyan
         Start-Process "$DashboardUrl"
         return
     }
     Set-Location "$InstallDir"
     Clear-Host
     Write-Host "--- WIN.REVANCED WORKSPACE ---" -ForegroundColor Cyan
-    Write-Host "Location: $InstallDir" -ForegroundColor Gray
-    Write-Host "Commands: 'revanced -ui' to launch dashboard" -ForegroundColor Green
-    java -jar revanced-cli.jar --help
+    Write-Host "JAR Path: $InstallDir" -ForegroundColor Gray
+    Write-Host "Commands: 'revanced -ui' for Dashboard" -ForegroundColor Green
+    Write-Host "------------------------------"
+    if (Test-Path "$InstallDir\revanced-cli.jar") {
+        java -jar "$InstallDir\revanced-cli.jar" --help
+    } else {
+        Write-Host "[!] revanced-cli.jar not found in $InstallDir" -ForegroundColor Red
+    }
 }
 "@
 
-if (!((Get-Content $ProfilePath) -contains 'function revanced {')) {
-    Add-Content -Path $ProfilePath -Value "`n$AliasCode"
-    Write-Host "[+] Shortcut Created: You can now type 'revanced' anywhere." -ForegroundColor Green
+# Define in current session immediately
+Invoke-Expression $AliasCode
+
+# Persist to Profile
+$ProfilePath = $PROFILE.CurrentUserAllHosts
+if (!(Test-Path $ProfilePath)) {
+    $null = New-Item -Path $ProfilePath -ItemType File -Force
 }
 
-Write-Host ""
-Write-Host "[*] INITIALIZING DASHBOARD UI..." -ForegroundColor Cyan
-Start-Sleep -Seconds 1
-Start-Process $DashboardUrl
+if (!((Get-Content $ProfilePath -ErrorAction SilentlyContinue) -contains 'function revanced {')) {
+    Add-Content -Path $ProfilePath -Value "`n$AliasCode"
+    Write-Host "[+] Alias 'revanced' persisted to: $ProfilePath" -ForegroundColor Green
+}
 
-Write-Host "---------------------------------------------" -ForegroundColor Cyan
-Write-Host "SETUP COMPLETE" -ForegroundColor White
-Write-Host "The dashboard should have opened in your browser." -ForegroundColor Gray
-Write-Host "If not, visit: $DashboardUrl" -ForegroundColor Cyan
-Write-Host "---------------------------------------------" -ForegroundColor Cyan
+# 5. Finalize
 Write-Host ""
+Write-Host "---------------------------------------------" -ForegroundColor Cyan
+Write-Host "   INSTALLATION COMPLETE" -ForegroundColor White
+Write-Host "---------------------------------------------" -ForegroundColor Cyan
+Write-Host "[!] IMPORTANT: The 'revanced' command is now active." -ForegroundColor Green
+Write-Host "[!] Try it now: Type 'revanced' or 'revanced -ui'" -ForegroundColor Cyan
+Write-Host ""
+
+# Launch UI
+Start-Process $DashboardUrl
