@@ -37,7 +37,9 @@ import {
   Code2,
   Share2,
   User,
-  Globe
+  Globe,
+  Settings,
+  HelpCircle
 } from 'lucide-react';
 
 const MemoizedAppIcon = memo(({ app, size = "md" }: { app: TargetApp, size?: "sm" | "md" | "lg" }) => {
@@ -265,7 +267,7 @@ const App: React.FC = () => {
                   <div className="p-4 bg-ps-highlight/10 border border-ps-highlight/30 rounded">
                     <div className="flex items-center justify-between mb-3">
                       <label className="text-[11px] font-bold text-ps-highlight uppercase tracking-[0.2em] flex items-center gap-2">
-                        <PS size={14} /> Global Setup (Paste in PS)
+                        <PS size={14} /> 1. Re-Run Setup (Fix Network Issues)
                       </label>
                       {copyStatus === 'setup' && <span className="text-[9px] font-bold text-emerald-400 animate-pulse">COPIED</span>}
                     </div>
@@ -403,10 +405,28 @@ const App: React.FC = () => {
                 </div>
               </div>
 
+              {/* Troubleshooting Section */}
+              <div className="ps-card p-10 border-red-500/20 bg-red-500/5 rounded-xl space-y-4">
+                 <div className="flex items-center gap-3 text-red-400">
+                    <ShieldAlert size={20} />
+                    <h3 className="font-bold text-sm uppercase tracking-widest">Installer Troubleshooting</h3>
+                 </div>
+                 <div className="grid grid-cols-2 gap-6 text-[11px] opacity-70">
+                    <div className="space-y-2">
+                       <p className="font-bold text-ps-text">"Network Failure" or "Could not reach GitHub"?</p>
+                       <p>This is usually caused by outdated TLS settings. Our new <code className="text-ps-highlight">setup.ps1</code> enforces TLS 1.2. Re-copy the command above and try again.</p>
+                    </div>
+                    <div className="space-y-2">
+                       <p className="font-bold text-ps-text">UI not launching after install?</p>
+                       <p>The script now uses <code className="text-ps-highlight">Start-Process</code> to trigger your browser. Make sure you have a default browser set on Windows.</p>
+                    </div>
+                 </div>
+              </div>
+
               <div className="ps-card p-10 bg-ps-highlight/5 border border-dashed border-ps-highlight/30 rounded-xl space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-ps-highlight rounded-full flex items-center justify-center text-black">
-                    <Play size={24} />
+                    <HelpCircle size={24} />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold italic">Why use the Raw URL?</h3>
